@@ -6,6 +6,10 @@ import {
     getAllTrips,
     getTripById
 } from '../controllers/trips.js';
+import {
+    getSchedulesForTrip,
+    getSchedulesForTripAndMonth
+} from '../controllers/schedules.js';
 
 const router = Router();
 
@@ -118,6 +122,13 @@ router.get('/trips', getAllTrips);
  *               $ref: '#/components/schemas/Error'
  */
 router.get('/trips/:id', getTripById);
+
+router.get('/trips/:id/schedules', (req, res) => {
+    if (req.query.month !== undefined) {
+        return getSchedulesForTripAndMonth(req, res);
+    }
+    return getSchedulesForTrip(req, res);
+});
 
 const specification = swaggerJsdoc({
     definition: {

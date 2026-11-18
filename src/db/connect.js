@@ -16,10 +16,6 @@ const connectToDb = async (options = {}) => {
         throw new Error('MONGODB_URI is required.');
     }
 
-    await mongoose.connect(connectionString, {
-        dbName: databaseName
-    });
-
   await mongoose.connect(connectionString, { dbName: databaseName });
   const connectedDatabase = mongoose.connection.db;
 
@@ -43,6 +39,7 @@ const closeDb = async () => {
   if (database) {
     await mongoose.disconnect();
     database = undefined;
+  }
 };
 
 export { closeDb, connectToDb, getDb };
