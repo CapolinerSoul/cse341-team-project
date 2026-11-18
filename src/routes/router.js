@@ -4,6 +4,7 @@ import apiRoutes from './api-routes.js';
 import ejsRoutes from './ejs-routes.js';
 import { trainsApi, trainsPage } from './trains.js';
 import { homePage, aboutPage, testErrorPage } from './index.js';
+import apiRouter from './api-routes.js';
 
 const router = Router();
 

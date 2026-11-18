@@ -20,8 +20,15 @@ const connectToDb = async (options = {}) => {
         dbName: databaseName
     });
 
-    database = mongoose.connection.db;
-    return database;
+  await mongoose.connect(connectionString, { dbName: databaseName });
+  const connectedDatabase = mongoose.connection.db;
+
+  if (!connectedDatabase) {
+    throw new Error('Database connection was not established.');
+  }
+
+  database = connectedDatabase;
+  return database;
 };
 
 const getDb = () => {
@@ -33,6 +40,7 @@ const getDb = () => {
 };
 
 const closeDb = async () => {
+  if (database) {
     await mongoose.disconnect();
     database = undefined;
 };
