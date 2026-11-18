@@ -1,67 +1,137 @@
-import { Router } from "express";
+import { Router } from 'express';
+import { fileURLToPath } from 'node:url';
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 import {
-  getSchedulesForTrip,
-  getSchedulesForTripAndMonth,
-} from "../controllers/schedules.js";
+    getAllTrips,
+    getTripById
+} from '../controllers/trips.js';
 
 const router = Router();
 
 /**
- * @swagger
- * /api/trips/{id}/schedules:
+ * @openapi
+ * components:
+ *   schemas:
+ *     Trip:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: alpine-panorama
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ *         region:
+ *           type: string
+ *         startStation:
+ *           type: string
+ *         endStation:
+ *           type: string
+ *         duration:
+ *           type: string
+ *         distance:
+ *           type: number
+ *         highlights:
+ *           type: array
+ *           items:
+ *             type: string
+ *         bestSeason:
+ *           type: string
+ *         operatingMonths:
+ *           type: array
+ *           items:
+ *             type: integer
+ *             minimum: 1
+ *             maximum: 12
+ *         imageUrl:
+ *           type: string
+ *     Error:
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ */
+
+/**
+ * @openapi
+ * /api/trips:
  *   get:
- *     summary: Get schedules for a trip
- *     description: Returns schedules for a trip, optionally limited to a month when the trip operates.
+ *     summary: Get all trips
+ *     tags:
+ *       - Trips
+ *     responses:
+ *       '200':
+ *         description: All trips; an empty array when none exist.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 trips:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Trip'
+ *       '500':
+ *         description: Failed to fetch trips.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.get('/trips', getAllTrips);
+
+/**
+ * @openapi
+ * /api/trips/{id}:
+ *   get:
+ *     summary: Get one trip by its string ID
+ *     tags:
+ *       - Trips
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: The trip slug, rather than its MongoDB _id.
  *         schema:
  *           type: string
- *         description: Trip identifier
- *       - in: query
- *         name: month
- *         required: false
- *         schema:
- *           type: integer
- *           minimum: 1
- *           maximum: 12
- *         description: Month number (1-12)
+ *           example: alpine-panorama
  *     responses:
- *       200:
- *         description: Schedules for the trip and selected operating month
+ *       '200':
+ *         description: The requested trip.
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   tripId:
- *                     type: string
- *                   departureTime:
- *                     type: string
- *                   arrivalTime:
- *                     type: string
- *                   daysOfWeek:
- *                     type: array
- *                     items:
- *                       type: string
- *                   status:
- *                     type: boolean
- *       400:
- *         description: Month is not an integer from 1 through 12
- *       500:
- *         description: Failed to fetch schedules
+ *               $ref: '#/components/schemas/Trip'
+ *       '404':
+ *         description: Trip not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       '500':
+ *         description: Failed to fetch trip.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
-router.get("/trips/:id/schedules", (req, res) => {
-  if (req.query.month === undefined) {
-    return getSchedulesForTrip(req, res);
-  }
+router.get('/trips/:id', getTripById);
 
-  return getSchedulesForTripAndMonth(req, res);
+const specification = swaggerJsdoc({
+    definition: {
+        openapi: '3.0.3',
+        info: {
+            title: 'Kizuna Rail Trips API',
+            version: '1.0.0'
+        }
+    },
+    apis: [
+        fileURLToPath(import.meta.url).replaceAll('\\', '/')
+    ]
 });
+
+router.use('/docs', swaggerUi.serve, swaggerUi.setup(specification));
 
 export default router;
