@@ -4,15 +4,26 @@ import apiRoutes from './api-routes.js';
 import ejsRoutes from './ejs-routes.js';
 import { trainsApi, trainsPage } from './trains.js';
 import { homePage, aboutPage, testErrorPage } from './index.js';
-import apiRouter from './api-routes.js';
+import authRouter from './auth.js';
+import {
+  requireApiLogin,
+  requirePageRole
+} from '../middleware/auth.js';
 
 const router = Router();
+router.get('/admin', requirePageRole('admin'), (req, res) => {
+  res.render('admin', {
+    title: 'Admin Dashboard'
+  });
+});
+
+router.use('/', authRouter);
 
 router.get('/', homePage);
 router.get('/about', aboutPage);
 
 router.get('/trains', trainsPage);
-router.get('/api/trains', trainsApi);
+router.get('/api/trains', requireApiLogin, trainsApi);
 
 router.use('/api', apiRoutes);
 router.use('/', ejsRoutes);
