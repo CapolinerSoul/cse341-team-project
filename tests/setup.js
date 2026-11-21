@@ -4,6 +4,9 @@ import { initializeDatabase } from '../src/db/initialize.js';
 
 const connectionString = inject('MONGODB_TEST_URI');
 
+// Used only by automated tests.
+process.env.SESSION_SECRET = 'test-only-session-secret';
+
 beforeAll(async () => {
   await connectToDb({
     connectionString,
