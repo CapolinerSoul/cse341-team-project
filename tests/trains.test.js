@@ -1,11 +1,51 @@
-import { describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import request from 'supertest';
 import app from '../app.js';
 import { getDb } from '../src/db/connect.js';
+import { Role } from '../src/models/schemas/roles.js';
 
 describe('GET /api/trains', () => {
-  test('returns a successful JSON response', async () => {
+  let agent;
+
+  beforeEach(async () => {
+    await Role.create({ name: 'customer' });
+
+    // Keep the login session cookie for subsequent requests.
+    agent = request.agent(app);
+
+    await agent
+      .post('/register')
+      .type('form')
+      .send({
+        name: 'Test Customer',
+        username: 'testcustomer',
+        email: 'customer@example.com',
+        password: 'TestPassword123!'
+      })
+      .expect(302)
+      .expect('Location', '/login');
+
+    await agent
+      .post('/login')
+      .type('form')
+      .send({
+        email: 'customer@example.com',
+        password: 'TestPassword123!'
+      })
+      .expect(302)
+      .expect('Location', '/');
+  });
+
+  test('rejects signed-out requests with JSON', async () => {
     const response = await request(app).get('/api/trains');
+
+    expect(response.status).toBe(401);
+    expect(response.headers['content-type']).toContain('application/json');
+    expect(response.body).toEqual({ message: 'Authentication required' });
+  });
+
+  test('returns a successful JSON response', async () => {
+    const response = await agent.get('/api/trains');
 
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toContain('application/json');
@@ -14,7 +54,7 @@ describe('GET /api/trains', () => {
   });
 
   test('returns the trains from the starter data', async () => {
-    const response = await request(app).get('/api/trains');
+    const response = await agent.get('/api/trains');
 
     expect(response.status).toBe(200);
     expect(response.body.trains).toHaveLength(4);
@@ -36,7 +76,7 @@ describe('GET /api/trains', () => {
       operator: 'Test Railway'
     });
 
-    const response = await request(app).get('/api/trains');
+    const response = await agent.get('/api/trains');
 
     expect(response.status).toBe(200);
     expect(response.body.trains).toEqual(

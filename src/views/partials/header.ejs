@@ -35,6 +35,20 @@
                     <span></span>
                 </label>
                 <ul>
+                    <% if (currentUser) { %>
+                        <li><span>Hello, <%= currentUser.name %></span></li>
+                        <li>
+                            <form action="/logout" method="post">
+                            <button type="submit">Sign out</button>
+                            </form>
+                        </li>
+                        <% } else { %>
+                        <li><a href="/register">Register</a></li>
+                        <li><a href="/login">Sign in</a></li>
+                    <% } %>
+                    <% if (currentUser && currentUser.role === 'admin') { %>
+                        <li><a href="/admin">Admin Dashboard</a></li>
+                    <% } %>
                     <li><a href="/trips">Trips</a></li>
                     <li><a href="/trains">Trains</a></li>
                     <li><a href="/about">About</a></li>
