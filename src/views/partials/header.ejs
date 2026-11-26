@@ -37,6 +37,7 @@
                 <ul>
                     <% if (currentUser) { %>
                         <li><span>Hello, <%= currentUser.name %></span></li>
+                        <li><a href="/admin/bookings">Bookings</a></li>
                         <li>
                             <form action="/logout" method="post">
                             <button type="submit">Sign out</button>

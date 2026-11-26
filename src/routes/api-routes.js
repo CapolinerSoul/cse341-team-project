@@ -4,12 +4,24 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import {
     getAllTrips,
-    getTripById
+    getTripById,
+    updateTrip,
+    deleteTrip,
+    getAllStations
 } from '../controllers/trips.js';
 import {
     getSchedulesForTrip,
     getSchedulesForTripAndMonth
 } from '../controllers/schedules.js';
+import {
+    getBookings,
+    updateBooking,
+    deleteBooking
+} from '../controllers/bookings.js';
+import {
+    requireApiLogin,
+    requireApiRole
+} from '../middleware/auth.js';
 
 const router = Router();
 
@@ -50,6 +62,58 @@ const router = Router();
  *             minimum: 1
  *             maximum: 12
  *         imageUrl:
+ *           type: string
+ *     Passenger:
+ *       type: object
+ *       properties:
+ *         firstName:
+ *           type: string
+ *         lastName:
+ *           type: string
+ *         email:
+ *           type: string
+ *         phone:
+ *           type: string
+ *     Booking:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: JRA1B2C3DE
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         scheduleId:
+ *           type: string
+ *         tripId:
+ *           type: string
+ *         ticketClass:
+ *           type: string
+ *           example: standard
+ *         selectedDay:
+ *           type: string
+ *           example: monday
+ *         passengers:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Passenger'
+ *     Station:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: nagoya
+ *         name:
+ *           type: string
+ *         prefecture:
+ *           type: string
+ *         region:
+ *           type: string
+ *         facilities:
+ *           type: array
+ *           items:
+ *             type: string
+ *         description:
  *           type: string
  *     Error:
  *       type: object
@@ -122,6 +186,208 @@ router.get('/trips', getAllTrips);
  *               $ref: '#/components/schemas/Error'
  */
 router.get('/trips/:id', getTripById);
+
+/**
+ * @openapi
+ * /api/trips/{id}:
+ *   put:
+ *     summary: Update a trip (admin only)
+ *     tags:
+ *       - Trips
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: alpine-panorama
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Trip'
+ *     responses:
+ *       '200':
+ *         description: The updated trip.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Trip'
+ *       '400':
+ *         description: No valid trip fields were provided.
+ *       '401':
+ *         description: Authentication required.
+ *       '403':
+ *         description: Admin role required.
+ *       '404':
+ *         description: Trip not found.
+ *       '500':
+ *         description: Failed to update trip.
+ */
+router.put('/trips/:id', requireApiRole('admin'), updateTrip);
+
+/**
+ * @openapi
+ * /api/trips/{id}:
+ *   delete:
+ *     summary: Delete a trip (admin only)
+ *     tags:
+ *       - Trips
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: alpine-panorama
+ *     responses:
+ *       '204':
+ *         description: Trip deleted.
+ *       '401':
+ *         description: Authentication required.
+ *       '403':
+ *         description: Admin role required.
+ *       '404':
+ *         description: Trip not found.
+ *       '500':
+ *         description: Failed to delete trip.
+ */
+router.delete('/trips/:id', requireApiRole('admin'), deleteTrip);
+
+/**
+ * @openapi
+ * /api/stations:
+ *   get:
+ *     summary: Get all stations
+ *     tags:
+ *       - Stations
+ *     responses:
+ *       '200':
+ *         description: All stations; an empty array when none exist.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 stations:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Station'
+ *       '500':
+ *         description: Failed to fetch stations.
+ */
+router.get('/stations', getAllStations);
+
+/**
+ * @openapi
+ * /api/bookings:
+ *   get:
+ *     summary: Get bookings for the signed-in user (admins see all bookings)
+ *     tags:
+ *       - Bookings
+ *     responses:
+ *       '200':
+ *         description: >
+ *           All bookings when the user is an admin; otherwise the bookings
+ *           where the user's email matches one of the passengers.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 bookings:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Booking'
+ *       '401':
+ *         description: Authentication required.
+ *       '500':
+ *         description: Failed to fetch bookings.
+ */
+router.get('/bookings', requireApiLogin, getBookings);
+
+/**
+ * @openapi
+ * /api/bookings/{id}:
+ *   put:
+ *     summary: Update a booking (admin, or a passenger on the booking)
+ *     tags:
+ *       - Bookings
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The booking confirmation code.
+ *         schema:
+ *           type: string
+ *           example: JRA1B2C3DE
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               ticketClass:
+ *                 type: string
+ *               selectedDay:
+ *                 type: string
+ *               passengers:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/Passenger'
+ *     responses:
+ *       '200':
+ *         description: The updated booking.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 booking:
+ *                   $ref: '#/components/schemas/Booking'
+ *       '400':
+ *         description: No valid booking fields were provided.
+ *       '401':
+ *         description: Authentication required.
+ *       '403':
+ *         description: Not allowed to modify this booking.
+ *       '404':
+ *         description: Booking not found.
+ *       '500':
+ *         description: Failed to update booking.
+ */
+router.put('/bookings/:id', requireApiLogin, updateBooking);
+
+/**
+ * @openapi
+ * /api/bookings/{id}:
+ *   delete:
+ *     summary: Delete a booking (admin, or a passenger on the booking)
+ *     tags:
+ *       - Bookings
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The booking confirmation code.
+ *         schema:
+ *           type: string
+ *           example: JRA1B2C3DE
+ *     responses:
+ *       '204':
+ *         description: Booking deleted.
+ *       '401':
+ *         description: Authentication required.
+ *       '403':
+ *         description: Not allowed to delete this booking.
+ *       '404':
+ *         description: Booking not found.
+ *       '500':
+ *         description: Failed to delete booking.
+ */
+router.delete('/bookings/:id', requireApiLogin, deleteBooking);
 
 router.get('/trips/:id/schedules', (req, res) => {
     if (req.query.month !== undefined) {

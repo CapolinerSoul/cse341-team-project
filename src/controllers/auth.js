@@ -85,6 +85,7 @@ export const login = async (req, res, next) => {
         id: user._id.toString(),
         name: user.name,
         username: user.username,
+        email: user.email,
         role: user.role.name
       };
 

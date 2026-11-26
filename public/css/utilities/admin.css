@@ -1,0 +1,191 @@
+/* Shared styles for the booking and trip admin pages. */
+
+.admin-page {
+    padding-block: var(--space-xl);
+}
+
+.admin-page > h1 {
+    margin-bottom: var(--space-sm);
+}
+
+.admin-state {
+    margin-block: var(--space-lg);
+    color: var(--clr-text-secondary);
+}
+
+.admin-error,
+.admin-form-error {
+    color: #a33;
+}
+
+.admin-list {
+    display: grid;
+    gap: var(--space-lg);
+    margin-block: var(--space-lg);
+}
+
+.admin-card {
+    background: var(--clr-surface);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-lg);
+    display: grid;
+    gap: var(--space-md);
+}
+
+.admin-card-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-xs);
+}
+
+.admin-card-header h2 {
+    font-size: var(--font-size-xl);
+    color: var(--clr-text-primary);
+}
+
+.admin-card-meta {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    color: var(--clr-text-muted);
+}
+
+.admin-card-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: var(--space-sm);
+}
+
+.admin-card-details .detail-item dt {
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--clr-text-muted);
+}
+
+.admin-card-details .detail-item dd {
+    color: var(--clr-text-primary);
+}
+
+.admin-card-passengers h3 {
+    font-size: var(--font-size-md);
+    margin-bottom: var(--space-xxs);
+}
+
+.admin-card-passengers ul {
+    list-style: disc;
+    padding-left: var(--space-lg);
+    color: var(--clr-text-secondary);
+}
+
+.admin-card-actions {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.admin-card-actions .btn {
+    cursor: pointer;
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-xs) var(--space-md);
+    font-size: var(--font-size-sm);
+    background: var(--clr-surface-alt);
+    color: var(--clr-text-primary);
+}
+
+.admin-card-actions .btn-primary {
+    background: var(--clr-primary);
+    border-color: var(--clr-primary);
+    color: var(--clr-text-alt-primary);
+}
+
+.admin-card-actions .btn-danger {
+    background: #c0564f;
+    border-color: #c0564f;
+    color: var(--clr-text-alt-primary);
+}
+
+.admin-edit-form {
+    border-top: 1px solid var(--clr-border-light);
+    padding-top: var(--space-md);
+    display: grid;
+    gap: var(--space-md);
+}
+
+.admin-edit-form .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: var(--space-sm);
+}
+
+.admin-edit-form .form-label {
+    display: grid;
+    gap: var(--space-xxs);
+    font-size: var(--font-size-sm);
+    color: var(--clr-text-secondary);
+}
+
+.admin-edit-form .form-input {
+    font: inherit;
+    padding: var(--space-xs);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-sm);
+    background: var(--clr-surface);
+    color: var(--clr-text-primary);
+}
+
+.admin-passenger-fieldset,
+.admin-months-fieldset {
+    border: 1px solid var(--clr-border-light);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm);
+}
+
+.admin-passenger-fieldset legend,
+.admin-months-fieldset legend {
+    padding-inline: var(--space-xxs);
+    font-size: var(--font-size-sm);
+    color: var(--clr-text-secondary);
+}
+
+.admin-months {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: var(--space-xxs);
+}
+
+.admin-month-option {
+    font-size: var(--font-size-sm);
+    color: var(--clr-text-secondary);
+}
+
+.admin-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+}
+
+.admin-link-button {
+    display: inline-block;
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--clr-primary);
+    color: var(--clr-text-alt-primary);
+    border: 1px solid var(--clr-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    font-size: var(--font-size-sm);
+    text-decoration: none;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-link-button:hover,
+.admin-link-button:focus-visible {
+    background: var(--clr-primary-light);
+    border-color: var(--clr-primary-light);
+    box-shadow: var(--shadow-md);
+    color: var(--clr-text-primary);
+}

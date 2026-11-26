@@ -1,0 +1,137 @@
+<%- include('./partials/header') %>
+
+<section class="content admin-page">
+    <h1>Trip Admin</h1>
+    <p>Manage every trip in the system. Only administrators can access this page.</p>
+
+    <div class="admin-state" id="trips-loading">Loading trips...</div>
+    <div class="admin-state admin-error" id="trips-error" hidden></div>
+    <div class="admin-state" id="trips-empty" hidden>No trips found.</div>
+
+    <div class="admin-list" id="trips-list"></div>
+
+    <template id="trip-card-template">
+        <article class="admin-card trip-card-admin">
+            <header class="admin-card-header">
+                <h2 data-field="name"></h2>
+                <span class="admin-card-meta" data-field="id"></span>
+            </header>
+
+            <p data-field="description"></p>
+
+            <dl class="admin-card-details">
+                <div class="detail-item">
+                    <dt>Region</dt>
+                    <dd data-field="region"></dd>
+                </div>
+                <div class="detail-item">
+                    <dt>Route</dt>
+                    <dd data-field="route"></dd>
+                </div>
+                <div class="detail-item">
+                    <dt>Duration</dt>
+                    <dd data-field="duration"></dd>
+                </div>
+                <div class="detail-item">
+                    <dt>Distance</dt>
+                    <dd data-field="distance"></dd>
+                </div>
+                <div class="detail-item">
+                    <dt>Best Season</dt>
+                    <dd data-field="bestSeason"></dd>
+                </div>
+                <div class="detail-item">
+                    <dt>Operating Months</dt>
+                    <dd data-field="operatingMonths"></dd>
+                </div>
+            </dl>
+
+            <div class="admin-card-actions">
+                <button type="button" class="btn btn-secondary" data-action="edit">Edit</button>
+                <button type="button" class="btn btn-danger" data-action="delete">Delete</button>
+            </div>
+
+            <form class="admin-edit-form" data-role="edit-form" hidden>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">
+                            Name
+                            <input type="text" name="name" class="form-input" required>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            Region
+                            <input type="text" name="region" class="form-input" required>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            Start Station
+                            <select name="startStation" class="form-input" data-role="station-select" required></select>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            End Station
+                            <select name="endStation" class="form-input" data-role="station-select" required></select>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            Duration
+                            <input type="text" name="duration" class="form-input" required>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            Distance (km)
+                            <input type="number" name="distance" class="form-input" min="0" required>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            Best Season
+                            <select name="bestSeason" class="form-input">
+                                <option value="spring">Spring</option>
+                                <option value="summer">Summer</option>
+                                <option value="autumn">Autumn</option>
+                                <option value="winter">Winter</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Description
+                        <textarea name="description" class="form-input" rows="3" required></textarea>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Highlights (one per line)
+                        <textarea name="highlights" class="form-input" rows="3"></textarea>
+                    </label>
+                </div>
+
+                <fieldset class="admin-months-fieldset">
+                    <legend>Operating Months</legend>
+                    <div class="admin-months" data-role="month-checkboxes"></div>
+                </fieldset>
+
+                <p class="admin-form-error" data-role="form-error" hidden></p>
+
+                <div class="admin-card-actions">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-action="cancel">Cancel</button>
+                </div>
+            </form>
+        </article>
+    </template>
+</section>
+
+<script src="/js/trips-admin.js"></script>
+
+<%- include('./partials/footer') %>

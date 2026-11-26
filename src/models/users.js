@@ -22,6 +22,10 @@ export const createUser = async (name, username, email, password) => {
   return user._id.toString();
 };
 
+export const findUserById = async (id) => {
+  return User.findById(id).lean();
+};
+
 export const findUserByEmail = async (email) => {
   return User.findOne({
     email: email.trim().toLowerCase()
