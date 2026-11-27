@@ -115,6 +115,11 @@
     gap: var(--space-md);
 }
 
+/* display:grid above would otherwise override the hidden attribute. */
+.admin-edit-form[hidden] {
+    display: none;
+}
+
 .admin-edit-form .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
