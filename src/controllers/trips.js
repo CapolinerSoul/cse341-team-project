@@ -1,6 +1,7 @@
 import {
     getTripById as findTripById,
     getAllTrips as findAllTrips,
+    getPaginatedTrips,
     updateTrip as updateTripById,
     deleteTrip as deleteTripById
 } from '../models/trips.js';
@@ -28,6 +29,22 @@ export async function getTripById(req, res) {
 
 export async function getAllTrips(req, res) {
     try {
+        if (req.query.page !== undefined) {
+            const pageValue = req.query.page;
+
+            if (typeof pageValue !== 'string'
+                || !/^[1-9]\d*$/.test(pageValue)
+                || !Number.isSafeInteger(Number(pageValue))) {
+                return res.status(400).json({
+                    error: 'Page must be a positive integer'
+                });
+            }
+
+            const result = await getPaginatedTrips(Number(pageValue), 10);
+
+            return res.status(200).json(result);
+        }
+
         const trips = await findAllTrips();
 
         return res.status(200).json({ trips });

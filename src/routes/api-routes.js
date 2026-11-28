@@ -126,12 +126,20 @@ const router = Router();
  * @openapi
  * /api/trips:
  *   get:
- *     summary: Get all trips
+ *     summary: Get trips, optionally paginated
  *     tags:
  *       - Trips
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         description: Positive page number. Returns 10 trips per page. Omit to return all trips.
+ *         schema:
+ *           type: integer
+ *           minimum: 1
  *     responses:
  *       '200':
- *         description: All trips; an empty array when none exist.
+ *         description: Trips and pagination metadata when page is supplied. Pages beyond the last page return the last available page.
  *         content:
  *           application/json:
  *             schema:
@@ -141,6 +149,27 @@ const router = Router();
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Trip'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     page:
+ *                       type: integer
+ *                       minimum: 1
+ *                     limit:
+ *                       type: integer
+ *                       example: 10
+ *                     total:
+ *                       type: integer
+ *                       minimum: 0
+ *                     totalPages:
+ *                       type: integer
+ *                       minimum: 0
+ *       '400':
+ *         description: Page must be a positive integer.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       '500':
  *         description: Failed to fetch trips.
  *         content:

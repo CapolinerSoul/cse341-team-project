@@ -2,7 +2,7 @@
 
 <h1><%= title %></h1>
 
-<div id="filters">
+<div id="filters" hidden>
     <label for="region-filter">Search by Region:</label>
     <select id="region-filter">
         <option value="all">All Regions</option>
@@ -16,9 +16,21 @@
 
 <p id="trips-loading" role="status">Loading trips...</p>
 <p id="trips-error" role="alert" hidden></p>
-<p id="trips-empty" role="status" hidden>No trips match your filters.</p>
+<p id="trips-empty" role="status" hidden>No trips available.</p>
 
 <div class="routes-grid" id="trips-list"></div>
+
+<nav id="trips-pagination" aria-label="Trip pagination" hidden>
+    <button type="button" id="trips-previous" disabled>
+        Previous
+    </button>
+
+    <span id="trips-page-info" role="status" aria-live="polite"></span>
+
+    <button type="button" id="trips-next" disabled>
+        Next
+    </button>
+</nav>
 
 <template id="trip-card-template">
     <div class="route-card">
