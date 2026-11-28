@@ -39,7 +39,8 @@ export async function getPaginatedTrips(page = 1, limit = 10, filters = {}) {
 
         query.$or = [
             { name: { $regex: keyword, $options: 'i' } },
-            { description: { $regex: keyword, $options: 'i' } }
+            { description: { $regex: keyword, $options: 'i' } },
+            { region: { $regex: keyword, $options: 'i' } }
         ];
     }
 

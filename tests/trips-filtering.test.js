@@ -20,10 +20,24 @@ describe('GET /api/trips filtering', () => {
 
     test.each([
         ['PANORAMA', ['alpine-panorama']],
-        ['TRADITIONAL VILLAGES', ['alpine-panorama']]
+        ['TRADITIONAL VILLAGES', ['alpine-panorama']],
+        ['CENTRAL', ['alpine-panorama', 'gorge-explorer']],
+        ['anSAi', ['romantic-gorge', 'sakura-valley']]
     ])('matches a case-insensitive substring: %s', async (search, expected) => {
         const response = await request(app).get('/api/trips').query({ search }).expect(200);
         expect(response.body.trips.map((trip) => trip.id)).toEqual(expected);
+    });
+
+    test('combines region keywords with the selected dropdown filters', async () => {
+        const response = await request(app).get('/api/trips')
+            .query({ search: 'KANSAI', season: 'spring' }).expect(200);
+        expect(response.body.trips.map((trip) => trip.id)).toEqual(['sakura-valley']);
+        expect(response.body.pagination.total).toBe(1);
+
+        const conflicting = await request(app).get('/api/trips')
+            .query({ search: 'KANSAI', region: 'central' }).expect(200);
+        expect(conflicting.body.trips).toEqual([]);
+        expect(conflicting.body.pagination.total).toBe(0);
     });
 
     test('combines filters before pagination and preserves all dropdown options', async () => {

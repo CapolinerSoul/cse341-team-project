@@ -156,7 +156,7 @@ const router = Router();
  *         example: autumn
  *       - in: query
  *         name: search
- *         description: Case-insensitive literal substring search in trip names or descriptions. Surrounding whitespace is trimmed.
+ *         description: Case-insensitive literal substring search in trip names, descriptions, or regions. Surrounding whitespace is trimmed.
  *         schema:
  *           type: string
  *           maxLength: 200
