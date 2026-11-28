@@ -21,3 +21,28 @@ export async function deleteTrip(id) {
 
     return result.deletedCount > 0;
 }
+
+export async function getPaginatedTrips(page = 1, limit = 10) {
+    const total = await Trip.countDocuments({}).exec();
+    const totalPages = Math.ceil(total / limit);
+
+    // Keep the requested page within the available results.
+    const currentPage = Math.min(page, Math.max(1, totalPages));
+
+    const trips = await Trip.find({})
+        .sort({ id: 1 })
+        .skip((currentPage - 1) * limit)
+        .limit(limit)
+        .lean()
+        .exec();
+
+    return {
+        trips,
+        pagination: {
+            page: currentPage,
+            limit,
+            total,
+            totalPages
+        }
+    };
+}
