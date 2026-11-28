@@ -5,8 +5,11 @@ import ejsRoutes from './ejs-routes.js';
 import { trainsApi, trainsPage } from './trains.js';
 import { homePage, aboutPage, testErrorPage } from './index.js';
 import authRouter from './auth.js';
+import { bookingsAdminPage } from '../controllers/bookings.js';
+import { tripsAdminPage } from '../controllers/trips.js';
 import {
   requireApiLogin,
+  requirePageLogin,
   requirePageRole
 } from '../middleware/auth.js';
 
@@ -16,6 +19,9 @@ router.get('/admin', requirePageRole('admin'), (req, res) => {
     title: 'Admin Dashboard'
   });
 });
+
+router.get('/admin/bookings', requirePageLogin, bookingsAdminPage);
+router.get('/admin/trips', requirePageRole('admin'), tripsAdminPage);
 
 router.use('/', authRouter);
 
