@@ -2,21 +2,32 @@
 
 <h1><%= title %></h1>
 
-<div id="filters" hidden>
+<form id="filters" role="search" aria-label="Filter trips">
     <label for="region-filter">Search by Region:</label>
-    <select id="region-filter">
+    <select id="region-filter" name="region">
         <option value="all">All Regions</option>
     </select>
 
     <label for="season-filter">Search by Season:</label>
-    <select id="season-filter">
+    <select id="season-filter" name="season">
         <option value="all">Any Season</option>
     </select>
-</div>
+
+    <label for="keyword-search">Search by Keyword:</label>
+    <input
+        type="search"
+        id="keyword-search"
+        name="search"
+        maxlength="200"
+        placeholder="Trip name, description, or region"
+    >
+
+    <button type="submit">Search</button>
+</form>
 
 <p id="trips-loading" role="status">Loading trips...</p>
 <p id="trips-error" role="alert" hidden></p>
-<p id="trips-empty" role="status" hidden>No trips available.</p>
+<p id="trips-empty" role="status" hidden>No trips match your search or filters.</p>
 
 <div class="routes-grid" id="trips-list"></div>
 

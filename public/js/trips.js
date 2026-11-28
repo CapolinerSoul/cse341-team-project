@@ -8,10 +8,33 @@ function initializeTrips() {
     const previousButton = document.getElementById('trips-previous');
     const nextButton = document.getElementById('trips-next');
     const pageInfo = document.getElementById('trips-page-info');
+    const filterForm = document.getElementById('filters');
+    const regionFilter = document.getElementById('region-filter');
+    const seasonFilter = document.getElementById('season-filter');
+    const keywordSearch = document.getElementById('keyword-search');
 
+    let activeFilters = {
+        region: 'all',
+        season: 'all',
+        search: ''
+    };
     let currentPage = 1;
     let totalPages = 0;
     let isLoading = false;
+
+    function populateFilter(select, values, selectedValue) {
+        // Keep the first option: All Regions or Any Season.
+        select.replaceChildren(select.options[0]);
+
+        for (const value of values) {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value.charAt(0).toUpperCase() + value.slice(1);
+            select.appendChild(option);
+        }
+
+        select.value = selectedValue;
+    }
 
     function renderTrips(trips) {
         const fragment = document.createDocumentFragment();
@@ -68,9 +91,13 @@ function initializeTrips() {
     function updateButtons() {
         previousButton.disabled = isLoading || currentPage <= 1;
         nextButton.disabled = isLoading || currentPage >= totalPages;
+
+        for (const control of filterForm.elements) {
+            control.disabled = isLoading;
+        }
     }
 
-    async function loadPage(page) {
+    async function loadPage(page, filters = activeFilters) {
         if (isLoading) {
             return;
         }
@@ -82,7 +109,21 @@ function initializeTrips() {
         updateButtons();
 
         try {
-            const response = await fetch(`/api/trips?page=${page}`);
+            const parameters = new URLSearchParams({ page: String(page) });
+
+            if (filters.region !== 'all') {
+                parameters.set('region', filters.region);
+            }
+
+            if (filters.season !== 'all') {
+                parameters.set('season', filters.season);
+            }
+
+            if (filters.search) {
+                parameters.set('search', filters.search);
+            }
+
+            const response = await fetch(`/api/trips?${parameters}`);
 
             if (!response.ok) {
                 throw new Error(`Failed to load trips (${response.status})`);
@@ -90,9 +131,29 @@ function initializeTrips() {
 
             const payload = await response.json();
 
-            if (!Array.isArray(payload.trips) || !payload.pagination) {
-                throw new Error('Unexpected trips response');
-            }
+            if (!Array.isArray(payload.trips)
+            || !payload.pagination
+            || !Array.isArray(payload.filters?.regions)
+            || !Array.isArray(payload.filters?.seasons)
+            || !payload.query) {
+            throw new Error('Unexpected trips response');
+                }
+
+                activeFilters = { ...payload.query };
+
+                populateFilter(
+                    regionFilter,
+                    payload.filters.regions,
+                    activeFilters.region
+                );
+
+                populateFilter(
+                    seasonFilter,
+                    payload.filters.seasons,
+                    activeFilters.season
+                );
+
+                keywordSearch.value = activeFilters.search;
 
             renderTrips(payload.trips);
 
@@ -124,6 +185,22 @@ function initializeTrips() {
     nextButton.addEventListener('click', () => {
         loadPage(currentPage + 1);
     });
+
+    function applyFilters() {
+        loadPage(1, {
+            region: regionFilter.value,
+            season: seasonFilter.value,
+            search: keywordSearch.value.trim()
+        });
+    }
+
+    filterForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        applyFilters();
+    });
+
+    regionFilter.addEventListener('change', applyFilters);
+    seasonFilter.addEventListener('change', applyFilters);
 
     loadPage(1);
 }

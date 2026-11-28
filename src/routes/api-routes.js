@@ -126,20 +126,48 @@ const router = Router();
  * @openapi
  * /api/trips:
  *   get:
- *     summary: Get trips, optionally paginated
+ *     summary: Get trips with optional pagination and filtering
  *     tags:
  *       - Trips
+ *     description: |
+ *       Providing page, region, season, or search returns paginated results.
+ *       Filters are combined and applied before pagination.
+ *       Without these parameters, returns the complete trip list.
  *     parameters:
  *       - in: query
  *         name: page
- *         required: false
- *         description: Positive page number. Returns 10 trips per page. Omit to return all trips.
+ *         description: Positive page number. Defaults to 1 for filtered requests.
  *         schema:
  *           type: integer
  *           minimum: 1
+ *       - in: query
+ *         name: region
+ *         description: Exact region value, or all. Unknown values return no matches.
+ *         schema:
+ *           type: string
+ *           maxLength: 100
+ *         example: central
+ *       - in: query
+ *         name: season
+ *         description: Exact best-season value, or all. Unknown values return no matches.
+ *         schema:
+ *           type: string
+ *           maxLength: 100
+ *         example: autumn
+ *       - in: query
+ *         name: search
+ *         description: Case-insensitive literal substring search in trip names, descriptions, or regions. Surrounding whitespace is trimmed.
+ *         schema:
+ *           type: string
+ *           maxLength: 200
+ *         example: mountain
  *     responses:
  *       '200':
- *         description: Trips and pagination metadata when page is supplied. Pages beyond the last page return the last available page.
+ *         description: |
+ *           Trip results. Paginated responses also include pagination,
+ *           available filter options, and the applied query.
+ *           Page size is 10. Requests beyond the last page return the
+ *           last available page. Empty results return page 1 and zero total pages.
  *         content:
  *           application/json:
  *             schema:
@@ -164,8 +192,33 @@ const router = Router();
  *                     totalPages:
  *                       type: integer
  *                       minimum: 0
+ *                 filters:
+ *                   type: object
+ *                   description: Available options from all trips.
+ *                   properties:
+ *                     regions:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     seasons:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                 query:
+ *                   type: object
+ *                   description: Applied filters after trimming whitespace.
+ *                   properties:
+ *                     region:
+ *                       type: string
+ *                       example: central
+ *                     season:
+ *                       type: string
+ *                       example: autumn
+ *                     search:
+ *                       type: string
+ *                       example: mountain
  *       '400':
- *         description: Page must be a positive integer.
+ *         description: Invalid page, repeated parameters, or invalid filter types or lengths.
  *         content:
  *           application/json:
  *             schema:

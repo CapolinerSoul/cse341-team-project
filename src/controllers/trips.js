@@ -29,25 +29,54 @@ export async function getTripById(req, res) {
 
 export async function getAllTrips(req, res) {
     try {
-        if (req.query.page !== undefined) {
-            const pageValue = req.query.page;
+        const hasQuery = ['page', 'region', 'season', 'search']
+            .some((key) => req.query[key] !== undefined);
 
-            if (typeof pageValue !== 'string'
-                || !/^[1-9]\d*$/.test(pageValue)
-                || !Number.isSafeInteger(Number(pageValue))) {
+        // Preserve the complete list used by the admin page.
+        if (!hasQuery) {
+            const trips = await findAllTrips();
+
+            return res.status(200).json({ trips });
+        }
+
+        const pageValue = req.query.page ?? '1';
+
+        if (typeof pageValue !== 'string'
+            || !/^[1-9]\d*$/.test(pageValue)
+            || !Number.isSafeInteger(Number(pageValue))) {
+            return res.status(400).json({
+                error: 'Page must be a positive integer'
+            });
+        }
+
+        const filters = {};
+
+        for (const field of ['region', 'season', 'search']) {
+            const value = req.query[field];
+
+            if (value === undefined) {
+                continue;
+            }
+
+            const maxLength = field === 'search' ? 200 : 100;
+
+            if (typeof value !== 'string'
+                || value.trim().length > maxLength) {
                 return res.status(400).json({
-                    error: 'Page must be a positive integer'
+                    error: `${field} must be a single string of at most ${maxLength} characters`
                 });
             }
 
-            const result = await getPaginatedTrips(Number(pageValue), 10);
-
-            return res.status(200).json(result);
+            filters[field] = value.trim();
         }
 
-        const trips = await findAllTrips();
+        const result = await getPaginatedTrips(
+            Number(pageValue),
+            10,
+            filters
+        );
 
-        return res.status(200).json({ trips });
+        return res.status(200).json(result);
     } catch (error) {
         console.error('Error fetching trips:', error);
 
