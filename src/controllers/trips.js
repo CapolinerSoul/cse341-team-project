@@ -55,7 +55,14 @@ function sanitizeTripUpdates(body) {
     }
 
     if (body.distance !== undefined) {
-        const distance = Number(body.distance);
+        const value = body.distance;
+
+        if (typeof value !== 'number'
+            && (typeof value !== 'string' || !value.trim())) {
+            return null;
+        }
+
+        const distance = Number(value);
 
         if (!Number.isFinite(distance) || distance < 0) {
             return null;
@@ -64,20 +71,24 @@ function sanitizeTripUpdates(body) {
         updates.distance = distance;
     }
 
-    if (Array.isArray(body.highlights)) {
-        updates.highlights = body.highlights
-            .map((highlight) => String(highlight).trim())
-            .filter(Boolean);
-    }
-
-    if (Array.isArray(body.operatingMonths)) {
-        const months = body.operatingMonths.map(Number);
-
-        if (months.some((month) => !Number.isInteger(month) || month < 1 || month > 12)) {
+    if (body.highlights !== undefined) {
+        if (!Array.isArray(body.highlights)
+            || body.highlights.some((highlight) => typeof highlight !== 'string')) {
             return null;
         }
 
-        updates.operatingMonths = months;
+        updates.highlights = body.highlights
+            .map((highlight) => highlight.trim())
+            .filter(Boolean);
+    }
+
+    if (body.operatingMonths !== undefined) {
+        if (!Array.isArray(body.operatingMonths)
+            || body.operatingMonths.some((month) => !Number.isInteger(month) || month < 1 || month > 12)) {
+            return null;
+        }
+
+        updates.operatingMonths = body.operatingMonths;
     }
 
     return updates;
